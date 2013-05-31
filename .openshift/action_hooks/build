@@ -41,6 +41,8 @@ function build_nginx()
 	make install
 	make clean
 
+	mkdir -p ${INSTALL_DIR}/nginx/run
+
 	cd ${OPENSHIFT_HOMEDIR}
 	rm -rf ${BUILD_DIR}
 }
