@@ -1,0 +1,57 @@
+#!/bin/bash
+# This is a simple build script and will be executed on your CI system if 
+# available.  Otherwise it will execute while your application is stopped
+# before the deploy step.  This script gets executed directly, so it
+# could be python, php, ruby, etc.
+
+
+PCRE_VERSION='8.33'
+NGINX_VERSION='1.4.1'
+
+PCRE_NAME="pcre-${PCRE_VERSION}"
+NGINX_NAME="nginx-${NGINX_VERSION}"
+
+PCRE_URL="ftp://ftp.csx.cam.ac.uk/pub/software/programming/pcre/${PCRE_NAME}.tar.gz"
+NGINX_URL="http://nginx.org/download/${NGINX_NAME}.tar.gz"
+
+BUILD_DIR=${OPENSHIFT_TMP_DIR}/${OPENSHIFT_APP_UUID}/build
+PCRE_BUILD_DIR=${BUILD_DIR}/${PCRE_NAME}
+NGINX_BUILD_DIR=${BUILD_DIR}/${NGINX_NAME}
+
+
+INSTALL_DIR=${OPENSHIFT_HOMEDIR}/app-root/runtime
+TEMPLATES_DIR=${OPENSHIFT_REPO_DIR}/.openshift/templates
+
+
+function build_nginx()
+{
+	mkdir -p ${PCRE_BUILD_DIR}
+	mkdir -p ${NGINX_BUILD_DIR}
+
+	cd ${BUILD_DIR}
+	wget ${PCRE_URL}
+	wget ${NGINX_URL}
+
+	tar xvf ${PCRE_NAME}.tar.gz
+	tar xvf ${NGINX_NAME}.tar.gz
+
+	cd ${NGINX_NAME}
+	./configure --prefix=${INSTALL_DIR}/nginx --with-pcre=${PCRE_BUILD_DIR} --with-http_ssl_module 
+	make
+	make install
+	make clean
+
+	cd ${OPENSHIFT_HOMEDIR}
+	rm -rf ${BUILD_DIR}
+}
+
+
+function check_and_install_nginx()
+{
+	if [[ ! -e ${INSTALL_DIR}/nginx/sbin/nginx ]]; then
+		build_nginx
+	fi
+}
+
+
+check_and_install_nginx

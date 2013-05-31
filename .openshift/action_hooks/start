@@ -1,0 +1,12 @@
+#!/bin/bash
+# The logic to start up your application should be put in this
+# script. The application will work only if it binds to
+# $OPENSHIFT_INTERNAL_IP:8080
+
+TEMPLATES_DIR=${OPENSHIFT_REPO_DIR}/.openshift/templates
+INSTALL_DIR=${OPENSHIFT_HOMEDIR}/app-root/runtime
+
+erb ${TEMPLATES_DIR}/nginx.conf.erb > ${INSTALL_DIR}/nginx/conf/nginx.conf
+
+echo "Starting nginx."
+nohup ${INSTALL_DIR}/nginx/sbin/nginx > ${INSTALL_DIR}/nginx/logs/server.log 2>&1 &

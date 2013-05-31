@@ -1,0 +1,8 @@
+#!/bin/bash
+# The logic to stop your application should be put in this script.
+
+INSTALL_DIR=${OPENSHIFT_HOMEDIR}/app-root/runtime
+
+echo "Stopping nginx."
+kill -QUIT `cat ${INSTALL_DIR}/nginx/run/nginx.pid`
+exit 0
